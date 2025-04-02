@@ -34,7 +34,7 @@ app.post("/admin/product", (req, res,) => {
   upload.single('image')(req, res, (uploadErr)=>{
     const {productName, productPrice, productAmount} = req.body;
     const sql = 'INSERT INTO product(name, price, amount, image) VALUE(?, ?, ?, ?)';
-    con.query(sql. [productName, productPrice, productAmount, req.file.filename], (err, result) => {
+    con.query(sql, [productName, productPrice, productAmount, req.file.filename], (err, result) => {
         if(err){
             console.error(err);
             return res.status(500).send('Upload failed');
