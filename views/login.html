@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="/public/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/public/js/bootstrap.bundle.min.js"></script>
+    <!-- notiflix -->
+    <script src="/public/js/notiflix-loading-aio-3.2.8.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <form name="formLogin" class="was-validated">
+            <div>
+                <label for="username">Username</label>
+                <input type="text" name="username" class="form-control" required>
+                <div class="invalid-feedback">No input!</div>
+                <div class="valid-feedback">Correct!</div>
+            </div>
+
+            <div>
+                <label for="username">Password</label>
+                <input type="password" name="password" class="form-control" required minlength="4" maxlength="4">
+                <div class="invalid-feedback">1 - 4 charaters only</div>
+                <div class="valid-feedback">Correct password length</div>
+            </div>
+            
+            <button class="btn btn-primary mt-3" type="submit">Login</button>
+        </form>
+    </div>
+
+    <script>
+        const formLogin = document.forms.formLogin;
+        formLogin.onsubmit = async function (e) {
+            e.preventDefault();
+            Notiflix.Loading.hourglass();
+            try {
+                const username = formLogin.username.value;
+                const password = formLogin.password.value;
+                const options = {
+                    method: 'POST',
+                    // headers: { "Content-Type": "application/json" },
+                    // body: JSON.stringify({ username: username, password: password })
+                    body: new URLSearchParams(new FormData(formLogin))
+                };
+                const response = await fetch(`/login`, options);
+                if (!response.ok) {
+                    const res_fail = await response.text();
+                    throw Error(res_fail);
+                }
+                const data = await response.text();
+                location.replace(data);
+            } catch (err) {
+                console.error(err.message);
+                alert(err.message);
+            } finally {
+                Notiflix.Loading.remove();
+            }
+        }
+    </script>
+</body>
+
+</html>

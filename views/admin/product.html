@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product management</title>
+    <link href="/public/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/public/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <!-- <nav class="navbar navbar-dark bg-dark justify-content-between px-3">
+        <span class="navbar-text">Welcome</span>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </nav> -->
+    <nav class="navbar navbar-expand navbar-dark bg-dark justify-content-between px-3">
+        <div class="nav navbar-nav">
+            <a class="nav-item nav-link active" href="#" aria-current="page">Home <span
+                    class="visually-hidden">(current)</span></a>
+            <a class="nav-item nav-link" href="#">Home</a>
+        </div>
+        <div>
+            <span id="username" class="navbar-text me-2">Username</span>
+            <a href="/logout" class="btn btn-danger">Logout</a>
+        </div>
+    </nav>
+
+    <button class="btn btn-success float-end m-3" data-bs-toggle="modal" data-bs-target="#modalId">Add</button>
+    <table class="table table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tblProduct">
+        </tbody>
+    </table>
+
+    <!-- Modal Body -->
+    <div class="modal fade" id="modalId" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId">
+                        Add new product
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="formProduct" enctype="multipart/form-data">
+                        <input type="text" name="productName" class="form-control mb-2" placeholder="Product name" required>
+                        <input type="text" name="productPrice" class="form-control mb-2" placeholder="Product price" required>
+                        <input type="text" name="productAmount" class="form-control mb-2" placeholder="Product amount" required>
+                        <input type="file" name="image" accept="image/*" class="form-control mb-3" required>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update table
+        const tblProduct = document.querySelector('#tblProduct');
+        // connect to server and get all products
+        async function getProducts() {
+            try {
+                const response = await fetch('/product');
+                if (!response.ok) {
+                    throw Error('Bad response');
+                }
+                const data = await response.json();
+                // Update username
+                document.querySelector('#username').textContent = data.user[1];
+                // Update table
+                let rows = '';
+                data.products.forEach(function (product) {
+                    rows += `<tr><td>${product.id}</td>`;
+                    rows += `<td><img src="/public/img/${product.image}"/></td>`;
+                    rows += `<td>${product.name}</td>`;
+                    rows += `<td>${product.price}</td>`;
+                    rows += `<td>${product.amount}</td>`;
+                    rows += `<td><button class="btn btn-warning">Edit</button>`;
+                    rows += `<button class="btn btn-danger">Delete</button></td></tr>`;
+                });
+                tblProduct.innerHTML = rows;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getProducts();
+
+        // find the modal
+        const myModal = new bootstrap.Modal(document.querySelector('#modalId'));
+
+        // modal form submit
+        const formProduct = document.forms.formProduct;
+        formProduct.onsubmit = async function (e) {
+            e.preventDefault();
+            // hide modal
+            myModal.hide();
+
+            // submtit form data, if success, update table
+            try {
+                const option = {
+                    method: 'POST',
+                    body: new FormData(formProduct)
+                };
+                const response = await fetch('/admin/product', option)
+                if (!response.ok) {
+                    throw Error('Bad response');
+                }
+                const data = await response.text();
+                alert(data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+
+</html>
